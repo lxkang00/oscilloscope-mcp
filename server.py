@@ -62,13 +62,12 @@ ALL_SOURCES = ANALOG_SOURCES + [
 # ── Input validation helpers ──────────────────────────────────────────────────
 
 def _sanitize_label(text: str) -> str:
-    """Escape double-quotes and enforce max 20 chars for SCPI label safety."""
-    # Escape SCPI string delimiter
+    """Escape double-quotes and enforce max 20 chars. Raises on SCPI delimiter."""
+    if ";" in text:
+        raise ValueError("SCPI delimiter ';' not allowed in label")
     sanitized = text.replace('"', "'").replace("\n", " ").replace("\r", "")
-    # Truncate to 20 chars
     if len(sanitized) > 20:
-        sanitized = sanitized[:20]
-    # Ensure non-empty
+        raise ValueError(f"Label too long ({len(sanitized)} > 20 chars)")
     return sanitized or "CH"
 
 
@@ -234,10 +233,6 @@ conn = OscilloscopeConnection()
 # Tool definitions — stored as a list of (name, description, schema) tuples
 # so list_tools() and handler dispatch stay in sync via HANDLERS dict.
 # ═══════════════════════════════════════════════════════════════════════════════
-
-def _bool_enum() -> list[str]:
-    return ["ON", "OFF"]
-
 
 TOOLS: list[dict[str, Any]] = [
     # ── Connection ──────────────────────────────────────────────────────────
