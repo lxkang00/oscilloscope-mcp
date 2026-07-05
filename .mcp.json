@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "oscilloscope": {
+      "command": "python",
+      "args": ["server.py"],
+      "description": "Siglent SDS2000X Plus Oscilloscope - remote control via TCP/IP (SCPI port 5024)"
+    }
+  }
+}
