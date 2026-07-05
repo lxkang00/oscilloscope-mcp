@@ -50,22 +50,33 @@ pip install -r requirements.txt
 | 命令 | IEEE 488.2 + SCPI |
 | 编码 | ASCII，每行以 `\n` 结尾 |
 
-## 可用工具（29 个）
+## 可用工具（34 个）
 
 ### 连接管理
 | 工具 | 说明 |
 |------|------|
-| `connect` | 通过 IP 连接示波器（必须先调用） |
+| `connect` | 通过 IP 连接示波器（端口固定 5024，必须先调用） |
 | `disconnect` | 断开连接 |
 | `send_command` | 发送任意 SCPI 命令（万能逃生舱） |
 | `get_id` | 获取设备 ID (*IDN?) |
 | `reset` | 恢复出厂设置 (*RST) |
+
+### 运行控制
+| 工具 | 说明 |
+|------|------|
+| `run` | 启动采集（Run 键） |
+| `stop` | 停止采集（Stop 键） |
 
 ### 通道配置
 | 工具 | 说明 |
 |------|------|
 | `configure_channel` | 配置通道（显示/刻度/耦合/探头/带宽/反转/标签/单位/偏移校准） |
 | `get_channel` | 读取通道当前设置 |
+
+### 数字通道（MSO 型号）
+| 工具 | 说明 |
+|------|------|
+| `configure_digital` | 配置数字通道（显示/位置/高度/标签/阈值） |
 
 ### 时基
 | 工具 | 说明 |
@@ -76,7 +87,7 @@ pip install -r requirements.txt
 ### 触发
 | 工具 | 说明 |
 |------|------|
-| `configure_trigger` | 配置触发（模式/类型/源/电平/斜率/耦合/释抑） |
+| `configure_trigger` | 配置触发（模式/类型/源/电平/斜率/耦合/释抑）— 修复：正确路由到当前触发类型子系统 |
 | `get_trigger` | 读取触发设置 |
 | `force_trigger` | 强制触发 |
 
@@ -99,6 +110,11 @@ pip install -r requirements.txt
 | `get_waveform_preamble` | 获取波形元数据（格式/点数/X增量/Y增量/原点） |
 | `get_waveform_data` | 获取波形电压数据（支持降采样） |
 
+### 截图
+| 工具 | 说明 |
+|------|------|
+| `get_screenshot` | 截取屏幕保存为 PNG（自动保存到本地文件） |
+
 ### 显示
 | 工具 | 说明 |
 |------|------|
@@ -119,10 +135,20 @@ pip install -r requirements.txt
 | 工具 | 说明 |
 |------|------|
 | `autoset` | 自动设置 |
-| `save_setup` / `recall_setup` | 保存/调用设置（内部存储或 USB） |
+| `save_setup` / `recall_setup` | 保存/调用设置（内部存储或 USB）— 修复：文件名注入防御 |
 | `get_frequency_counter` | 读取硬件频率计 |
 | `get_status` | 获取运行状态 |
 | `get_next_error` | 读取并清除错误队列 |
+| `quick_snapshot` | 快速概览：所有活动通道的 VPP/FREQ + 时基 + 触发 + 采样率 |
+
+## 安全加固
+
+- **端口锁定**：连接工具不再暴露 `port` 参数，固定使用 SCPI 标准端口 5024
+- **标签注入防御**：通道标签自动转义双引号、限制 20 字符
+- **文件名注入防御**：保存/调用文件名限制字母数字和 `_-`，拒绝路径穿越字符
+- **Source 枚举约束**：所有 source 参数限定为合法通道标识符（C1-C4, MATH 等）
+- **主机名验证**：拒绝 URL 格式的 host 输入
+- **余辉枚举**：persistence 参数限定为有效值（OFF/0.5/1/5/10/INF）
 
 ## 使用示例
 
